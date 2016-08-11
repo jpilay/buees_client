@@ -1,8 +1,21 @@
 <resources>
     <string name="app_name">Buees Client</string>
+    <string name="app_home">Home</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+    <!-- Preferences -->
+    <string name="preferences">USER_PREFERENCES</string>
+    <string name="status">Status</string>
+    <string name="id">Id</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="name">Name</string>
+    <string name="email">Email</string>
+
+    <!-- Google map Key -->
+    <string name="google_maps_key">AIzaSyDFM8n05SKMnAS0x1DK9hKnJy2V5n-x-Mw</string>
 </resources>

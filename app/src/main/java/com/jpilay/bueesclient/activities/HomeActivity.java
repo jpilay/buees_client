@@ -12,10 +12,9 @@ import android.webkit.GeolocationPermissions;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
 
 import com.jpilay.bueesclient.R;
-import com.jpilay.bueesclient.network.NetworkFunction;
+import com.jpilay.bueesclient.network.Network;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -51,7 +50,7 @@ public class HomeActivity extends AppCompatActivity {
 	protected void onPostCreate(@Nullable Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 
-		if (!NetworkFunction.checkInternetConnection(getApplicationContext())) {
+		if (!Network.checkInternetConnection(getApplicationContext())) {
 			Snackbar.make(getCurrentFocus(), "No tiene Conexión a Internet", Snackbar.LENGTH_LONG)
 					.setAction("Reintentar", new View.OnClickListener() {
 						@Override

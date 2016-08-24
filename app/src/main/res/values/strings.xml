@@ -21,6 +21,9 @@
     <!-- Google map Key -->
     <string name="google_maps_key">AIzaSyByPnRCtoDB1aJ_qVLAXYWGViS4lJWXHm8</string>
 
+    <!-- GCM Key -->
+    <string name="sender_id">396171469931</string>
+
     <!-- URL -->
     <string name="url">http://192.168.0.105:8000/</string>
 

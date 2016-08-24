@@ -17,6 +17,7 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!--
      Creates a custom permission so only this app can receive its messages.
@@ -48,7 +49,7 @@
 
         <!-- The API key for Google Maps-based APIs -->
         <meta-data
-            android:name="com.google.android.geo.API_KEY"
+            android:name="com.google.android.maps.v2.API_KEY"
             android:value="@string/google_maps_key" />
 
         <activity
@@ -103,24 +104,22 @@
           The com.google.android.c2dm.permission.SEND permission is necessary
           so only GCM services can send data messages for the app.
         -->
-        <!--<receiver
+        <receiver
             android:name=".notifications.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
 
-                Receives the actual messages.
+                <!-- Receives the actual messages. -->
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
 
-                Receives the registration id.
+                <!-- Receives the registration id. -->
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
 
-                <category android:name="com.silour" />
+                <category android:name="com.jpilay.bueesclient" />
             </intent-filter>
         </receiver>
 
-
         <service android:name=".notifications.GcmIntentService" />
-        -->
 
     </application>
 

@@ -18,6 +18,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    useLibrary 'org.apache.http.legacy'
 }
 
 dependencies {
@@ -25,8 +26,10 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'com.android.support:design:23.3.0'
-    compile 'com.fasterxml.jackson.core:jackson-core:2.8.1'
-    compile 'com.fasterxml.jackson.core:jackson-annotations:2.8.1'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.8.1'
     compile 'com.google.android.gms:play-services:8.1.0'
+    compile 'com.android.support:multidex:1.0.1' // When use http and application
+    compile files('libs/volley.jar')
+    compile 'com.android.support:recyclerview-v7:23.3.0'
+    compile 'com.bignerdranch.android:simple-item-decoration:1.0.0' // Item decorator for recyvler view
 }

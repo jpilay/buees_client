@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:focusable="true"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp"
+    android:clickable="true"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <com.android.volley.toolbox.NetworkImageView
+            android:id="@+id/image"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_vertical"
+            android:scaleType="center"
+            android:src="@mipmap/ic_launcher"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.9"
+            android:layout_marginLeft="10dp"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lines="1"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:text="Some Item ffvff vfvgvgv gvgvg gvgvg vgvgv gv gvg Esto se perdio en el bus drf krfrnf Esto se perdio en el bus drf krfrnf"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/route"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:text="Alborada" />
+
+            <TextView
+                android:id="@+id/datetime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="12:34 - 10/06/2015" />
+
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/setting_delivery"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.1"
+            android:src="@drawable/ic_dots"
+            android:clickable="true"/>
+
+    </LinearLayout>
+
+</RelativeLayout>

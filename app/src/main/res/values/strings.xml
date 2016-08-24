@@ -1,21 +1,56 @@
 <resources>
-    <string name="app_name">Buees Client</string>
-    <string name="app_home">Home</string>
+    <string name="app_name">Buees</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="action_settings">Settings</string>
+    <string name="action_settings">Cambio Contraseña</string>
+
+    <!-- Names of Activities -->
+    <string name="activity_home">Home</string>
 
     <!-- Preferences -->
     <string name="preferences">USER_PREFERENCES</string>
     <string name="status">Status</string>
-    <string name="id">Id</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="name">Name</string>
     <string name="email">Email</string>
+    <string name="group">Group</string>
 
     <!-- Google map Key -->
-    <string name="google_maps_key">AIzaSyDFM8n05SKMnAS0x1DK9hKnJy2V5n-x-Mw</string>
+    <string name="google_maps_key">AIzaSyByPnRCtoDB1aJ_qVLAXYWGViS4lJWXHm8</string>
+
+    <!-- URL -->
+    <string name="url">http://192.168.0.105:8000/</string>
+
+    <!-- Messages -->
+    <string name="network_internet_disconnect">No tiene conexión a internet</string>
+    <string name="network_gps_disconnect">No tiene el GPS encendido</string>
+    <string name="network_refresh">Reintentar</string>
+    <string name="title_activity_publication">Objetos Perdidos</string>
+    <string name="title_activity_login">Log in</string>
+    <string name="title_activity_register">Sign up</string>
+    <string name="title_activity_change_password">Cambio Contraseña</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_username">Nombre de usuario</string>
+    <string name="prompt_password">Contraseña</string>
+    <string name="prompt_new_password">Nueva Contraseña</string>
+    <string name="prompt_confirm_password">Confirmar Contraseña</string>
+    <string name="prompt_email">Email</string>
+    <string name="action_search">Busca celulares, cuadernos y demás</string>
+    <string name="action_sign_in">Iniciar Sesión</string>
+    <string name="action_sign_up">Registrarse</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="action_driver_publication">Entregado</string>
+    <string name="action_change_password">Cambiar Contraseña</string>
+    <string name="action_forgot_password">Solicitar</string>
+    <string name="error_invalid_username">El nombre de usuario es muy corto</string>
+    <string name="error_invalid_password">La contraseña es muy corta</string>
+    <string name="error_confirmation_password">La contraseña no coinciden</string>
+    <string name="error_invalid_email">El correo no es válido</string>
+    <string name="error_incorrect_password">La contraseña es incorrecta</string>
+    <string name="error_field_required">Este campo es requerido</string>
+
 </resources>

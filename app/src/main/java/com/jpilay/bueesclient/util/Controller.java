@@ -111,5 +111,16 @@ public class Controller {
         JSONArray jsonArray = jsonParser.getJSONFromUrl(mContext.getString(R.string.url) + "api/BusRoute/?format=json", "");
         return jsonArray;
     }
+
+    public JSONObject registerDevice(String username, String registration_id, String device_id){
+
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("username",username));
+        params.add(new BasicNameValuePair("registration_id",registration_id));
+        params.add(new BasicNameValuePair("device_id",device_id));
+
+        JSONObject json = jsonParser.postJSONFromUrl(mContext.getString(R.string.url) + "register_device//", params);
+        return json;
+    }
 	
 }

@@ -18,8 +18,7 @@ import com.jpilay.bueesclient.network.Network;
 
 public class HomeActivity extends AppCompatActivity {
 
-	private static String URL_HOME = "http://www.google.com";
-	public View rootView;
+	private static String URL_HOME = "http://www.uees.edu.ec";
 	private ProgressDialog dialog;
 	private WebView webView;
     private Toolbar toolbar;
@@ -32,17 +31,16 @@ public class HomeActivity extends AppCompatActivity {
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(R.string.app_home);
+        getSupportActionBar().setTitle(R.string.activity_home);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 		webView = (WebView) findViewById(R.id.web_home);
-		webView.getSettings().setBuiltInZoomControls(true);
-		webView.setWebViewClient(new GeoWebViewClient());
 
 		// Below required for geolocation
 		webView.getSettings().setJavaScriptEnabled(true);
 		webView.getSettings().setGeolocationEnabled(true);
+		webView.setWebViewClient(new GeoWebViewClient());
 		webView.setWebChromeClient(new GeoWebChromeClient());
 	}
 
@@ -51,8 +49,8 @@ public class HomeActivity extends AppCompatActivity {
 		super.onPostCreate(savedInstanceState);
 
 		if (!Network.checkInternetConnection(getApplicationContext())) {
-			Snackbar.make(getCurrentFocus(), "No tiene Conexión a Internet", Snackbar.LENGTH_LONG)
-					.setAction("Reintentar", new View.OnClickListener() {
+			Snackbar.make(getCurrentFocus(), R.string.network_internet_disconnect, Snackbar.LENGTH_LONG)
+					.setAction(R.string.network_refresh, new View.OnClickListener() {
 						@Override
 						public void onClick(View view) {
 							loadMap();

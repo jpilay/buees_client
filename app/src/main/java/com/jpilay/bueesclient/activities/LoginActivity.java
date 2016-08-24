@@ -39,6 +39,8 @@ import org.json.JSONObject;
  */
 public class LoginActivity extends AppCompatActivity {
 
+    public static final String PROPERTY_REG_ID = "registration_id";
+
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -248,6 +250,7 @@ public class LoginActivity extends AppCompatActivity {
                             jsonObj.getString("email"),
                             jsonObj.getString("group")
                             );
+                    storeRegistrationId(jsonObj.getString("registration_id"));
                 }
 
             } catch (JSONException e) {
@@ -289,6 +292,14 @@ public class LoginActivity extends AppCompatActivity {
         editor.putString(getResources().getString(R.string.email),email);
         editor.putString(getResources().getString(R.string.group),group);
 
+        editor.commit();
+    }
+
+    private void storeRegistrationId(String regId) {
+        final SharedPreferences prefs = getSharedPreferences(MainActivity.class.getSimpleName(),
+                Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(PROPERTY_REG_ID, regId);
         editor.commit();
     }
 

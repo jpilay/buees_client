@@ -1,16 +1,21 @@
 package com.jpilay.bueesclient.activities;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.location.Location;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -25,6 +30,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.toolbox.ImageLoader;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -35,10 +44,14 @@ import com.jpilay.bueesclient.R;
 import com.jpilay.bueesclient.application.AppController;
 import com.jpilay.bueesclient.models.ScaleImageView;
 import com.jpilay.bueesclient.models.User;
+import com.jpilay.bueesclient.network.Network;
 import com.jpilay.bueesclient.util.Controller;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,OnMapReadyCallback { //, GoogleMap.OnMyLocationButtonClickListener {
@@ -46,6 +59,14 @@ public class MainActivity extends AppCompatActivity
     private static final LatLng GUAYAQUIL = new LatLng(-2.173200, -79.921335);
     private BusScheduleTask mAuthTask = null;
     public ImageLoader imageLoader = null;
+
+    // GCM Notification Push
+    public static final String EXTRA_MESSAGE = "message";
+    public static final String PROPERTY_REG_ID = "registration_id";
+    private static final String PROPERTY_APP_VERSION = "appVersion";
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    public GoogleCloudMessaging gcm;
+    public String regid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -318,6 +339,301 @@ public class MainActivity extends AppCompatActivity
             mDialog.dismiss();
         }
 
+    }
+
+    // GCM notification push
+    /**
+     * Check the device to make sure it has the Google Play Services APK. If it
+     * doesn't, display a dialog that allows users to download the APK from the
+     * Google Play Store or enable it in the device's system settings.
+     */
+
+    private void checkRegistrationGCM(){
+        if(Network.checkInternetConnection(getApplicationContext())) {
+            // Check device for Play Services APK. If check succeeds, proceed with
+            // GCM registration.
+
+            if (checkPlayServices()) {
+
+                gcm = GoogleCloudMessaging.getInstance(this);
+                regid = getRegistrationId(getApplicationContext());
+
+                if (regid.isEmpty()) {
+                    new registerInBackground(MainActivity.this).execute((Void) null);
+                } else {
+                    sendRegistrationIdToBackend();
+                }
+            } else {
+                Log.i("Buees", "No valid Google Play Services APK found.");
+                Toast.makeText(getApplicationContext(), "Por favor actualize Google Play Services para usar todos nuestros servicios.", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    private boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                apiAvailability.getErrorDialog(this, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST)
+                        .show();
+            } else {
+                Log.i("GCM Buees", "This device is not supported.");
+                finish();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkPlayServices2() {
+        int resultCode = GooglePlayServicesUtil
+                .isGooglePlayServicesAvailable(this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode)) {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, this,
+                        PLAY_SERVICES_RESOLUTION_REQUEST).show();
+
+                Toast.makeText(getApplicationContext(),
+                        "Error revise Google Play Services.", Toast.LENGTH_LONG).show();
+            } else {
+                Log.i("GCM Buees", "This device is not supported.");
+
+                Toast.makeText(getApplicationContext(),
+                        "Este dispositivo no tiene soporte.", Toast.LENGTH_LONG).show();
+                finish();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    /* Alternative of check google play services */
+
+    private boolean servicesConnected() {
+        // Check that Google Play services is available
+        int resultCode = GooglePlayServicesUtil
+                .isGooglePlayServicesAvailable(this);
+        // If Google Play services is available
+        if (ConnectionResult.SUCCESS == resultCode) {
+            // In debug mode, log the status
+            // Continue
+            return true;
+            // Google Play services was not available for some reason
+        } else {
+            Toast.makeText(getApplicationContext(),
+                    "Le hace falta instalar Servicios de Google Play.",
+                    Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("market://details?id=com.google.android.gms"));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+
+        }
+
+        return false;
+    }
+
+    /**
+     * Stores the registration ID and the app versionCode in the application's
+     * {@code SharedPreferences}.
+     *
+     * @param context
+     *            application's context.
+     * @param regId
+     *            registration ID
+     */
+    private void storeRegistrationId(Context context, String regId) {
+        final SharedPreferences prefs = getGcmPreferences(context);
+        int appVersion = getAppVersion(context);
+        Log.i("GCM Buees", "Saving regId on app version " + appVersion);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(PROPERTY_REG_ID, regId);
+        editor.putInt(PROPERTY_APP_VERSION, appVersion);
+        editor.commit();
+    }
+
+    /**
+     * Gets the current registration ID for application on GCM service, if there
+     * is one.
+     * <p>
+     * If result is empty, the app needs to register.
+     *
+     * @return registration ID, or empty string if there is no existing
+     *         registration ID.
+     */
+    private String getRegistrationId(Context context) {
+        final SharedPreferences prefs = getGcmPreferences(context);
+        String registrationId = prefs.getString(PROPERTY_REG_ID, "");
+        if (registrationId.isEmpty()) {
+            Log.i("GCM Buees", "Registration not found.");
+            return "";
+        }
+        // Check if app was updated; if so, it must clear the registration ID
+        // since the existing regID is not guaranteed to work with the new
+        // app version.
+        int registeredVersion = prefs.getInt(PROPERTY_APP_VERSION,
+                Integer.MIN_VALUE);
+        int currentVersion = getAppVersion(context);
+        if (registeredVersion != currentVersion) {
+            Log.i("GCM Buees", "App version changed.");
+            return "";
+        }
+        return registrationId;
+    }
+
+    /**
+     * Registers the application with GCM servers asynchronously.
+     * <p>
+     * Stores the registration ID and the app versionCode in the application's
+     * shared preferences.
+     */
+    public class registerInBackground extends AsyncTask<Void, Void, String> {
+
+        private Context context;
+        private Activity activity;
+
+        public registerInBackground(Activity activity) {
+            this.activity = activity;
+            context = activity;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+
+            String msg = "";
+            try {
+
+                if (gcm == null) {
+                    gcm = GoogleCloudMessaging.getInstance(context);
+                }
+
+                regid = gcm.register(getResources().getString(R.string.sender_id));
+                msg = "Device registered, registration ID=" + regid;
+
+                // You should send the registration ID to your server over.
+                // Persist the regID - no need to register again.
+                storeRegistrationId(context, regid);
+            } catch (IOException ex) {
+                regid = "";
+                msg = "Error :" + ex.getMessage();
+                // If there is an error, don't just keep trying to register.
+                // Require the user to click a button again, or perform
+                // exponential back-off.
+            }
+            return msg;
+        }
+
+        @Override
+        protected void onPostExecute(String msg) {
+            Log.i("GCM Buees", msg);
+            sendRegistrationIdToBackend();
+        }
+
+    }
+
+    /**
+     * @return Application's version code from the {@code PackageManager}.
+     */
+    private static int getAppVersion(Context context) {
+        try {
+            PackageInfo packageInfo = context.getPackageManager()
+                    .getPackageInfo(context.getPackageName(), 0);
+            return packageInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            // should never happen
+            throw new RuntimeException("Could not get package name: " + e);
+        }
+    }
+
+    /**
+     * @return Application's {@code SharedPreferences}.
+     */
+    private SharedPreferences getGcmPreferences(Context context) {
+        // This sample app persists the registration ID in shared preferences,
+        // but
+        // how you store the regID in your app is up to you.
+        return getSharedPreferences(MainActivity.class.getSimpleName(),
+                Context.MODE_PRIVATE);
+    }
+
+    /**
+     * Sends the registration ID to your server over HTTP, so it can use
+     * GCM/HTTP or CCS to send messages to your app.
+     */
+    public void sendRegistrationIdToBackend() {
+        new SendRegistrationAPI(MainActivity.this).execute();
+        //Toast.makeText(getApplicationContext(), regid, Toast.LENGTH_LONG).show();
+
+    }
+
+    /**
+     * Send name, registration ID and device ID to your server over HTTP.
+     */
+
+    public class SendRegistrationAPI extends AsyncTask<String, Void, Boolean> {
+
+        private Context context;
+        private Activity activity;
+
+        public SendRegistrationAPI(Activity activity) {
+            this.activity = activity;
+            context = activity;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+
+            if (success)
+                Log.i("GCM Buees", "Save success regId on app server ");
+            else
+                Log.i("GCM Buees", "Save not success regId on app server ");
+        }
+
+        @Override
+        protected Boolean doInBackground(String... args) {
+
+            Boolean success = false;
+            String device_id = getMDN_or_MEID(context);
+            String registration_id = regid;
+            String username = getUser(context);
+
+            try {
+
+                Controller controller = new Controller(getApplicationContext());
+                JSONObject jsonObj = controller.registerDevice(username, registration_id, device_id);
+
+                if (jsonObj != null) {
+                    if(jsonObj.has("id"))
+                        success = true;
+                }
+
+            } catch (Exception e) {
+                Log.e("GCM Buees", e.getMessage());
+            }
+
+            return success;
+
+        }
+    }
+
+    /** Obtain IdDevice can be GCM o CDMA **/
+    private String getMDN_or_MEID(Context context) {
+
+        // getSystemService is a method from the Activity class. getDeviceID()
+        // will return the MDN or MEID of the device depending on which radio
+        // the phone uses (GSM or CDMA).
+        TelephonyManager tManager = (TelephonyManager) context
+                .getSystemService(Context.TELEPHONY_SERVICE);
+        String uid = tManager.getDeviceId();
+        return uid;
+
+    }
+
+    private String getUser(Context context) {
+        SharedPreferences sp = context.getSharedPreferences(getResources().getString(R.string.preferences), Context.MODE_PRIVATE);
+        String user = sp.getString(getResources().getString(R.string.username), "");
+        return user;
     }
 
 }
